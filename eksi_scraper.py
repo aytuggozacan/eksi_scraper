@@ -40,7 +40,8 @@ async def fetch(session, url, writer):
         
         
 async def main(args, last_page, writer):
-    async with aiohttp.ClientSession() as session: # start request session for speed up
+    connector = aiohttp.TCPConnector(verify_ssl=False)
+    async with aiohttp.ClientSession(connector=connector) as session: # start request session for speed up
         tasks = [fetch(session, f'{args.url}?p={i}', writer) for i in range(1, last_page + 1)] # create tasks
         await asyncio.gather(*tasks) # wait coroutines until they complete
 
@@ -84,7 +85,7 @@ if __name__ == '__main__':
     last_page = page_counts(args.url) # get page counts of the entry
     start_time = time.time() # start time
 
-    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+    asyncio.set_event_loop_policy(asyncio.DefaultEventLoopPolicy())
     asyncio.run(main(args, last_page, writer)) # run async fuction
 
     fp.close() # close file after finished scrape
